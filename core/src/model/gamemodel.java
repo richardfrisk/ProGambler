@@ -6,10 +6,11 @@ public class gamemodel {
 funktioner: Deala korten, pull card from kortlek
 spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private int pot;
-    
+
     //private Player players[];
     //private Player ingame_players[];
     //private Player active_players[];
+    //Använd state machines istället för högre betyg.
 
 
     private static void dealCards(){
