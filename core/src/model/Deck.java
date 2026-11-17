@@ -1,6 +1,4 @@
 package io.github.OOprojektG10.model;
-    
-
 
 import java.util.ArrayList;
 import java.util.Collections;

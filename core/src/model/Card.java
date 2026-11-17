@@ -1,11 +1,8 @@
 package io.github.OOprojektG10.model;
 
-
-
-
 public class Card {
 
-    private final String rank;  //
+    private final String rank;
     private final String suit;
 
     public Card(String rank, String suit) {

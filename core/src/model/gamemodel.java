@@ -9,7 +9,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private int prePot; //den mängd chips som läggs till i poten i slutet av rundan.
     private int bet;
 
-    //private card river[];
+    private Card river[];
 
     //private Player players[];
     //private Player ingame_players[];
