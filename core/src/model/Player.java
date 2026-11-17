@@ -1,11 +1,11 @@
-package io.github.OOprojektG10;
+package model;
 
 import javax.smartcardio.Card;
 
 public class Player {
     protected int chip_count;
     protected Card[] hand = null;
-    private String[] states = { "Fold", "Call", "Check", "Raise" };
+    private String[] states = { "Fold", "Call", "Check", "Raise", "Out" };
     private String last_move = null;
 
     // Create the player with a hand and a starting chip count
@@ -51,6 +51,7 @@ public class Player {
                 chip_count -= bet;
             } else {
                 chip_count = 0;
+                last_move = states[4];
             }
         } else {
             chip_count += bet;

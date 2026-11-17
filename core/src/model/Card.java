@@ -1,4 +1,4 @@
-package io.github.OOprojektG10.model;
+package model;
 
 public class Card {
 

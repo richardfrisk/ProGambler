@@ -9,24 +9,26 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private int prePot; //den mängd chips som läggs till i poten i slutet av rundan.
     private int bet;
 
-    private Card river[];
+    private Card[] river = new Card[];
+    private Deck deck;
 
-    //private Player players[];
-    //private Player ingame_players[];
-    //private Player active_players[];
-    //Använd state machines istället för högre betyg.
+    private Player[] players;
 
+    public gamemodel(int Starting_Chips, Deck deck, int player_count){
+        setChipsOnTableToZero();
+
+
+    }
 
     private static void dealCards(){
         //Dela ut kort till samtliga ACTIVA spelare
-        //använd pullCard()
+        //använd drawCard()
     }
 
-    private static void pullCard(){
-        //dra kort från kortleken. Vet inte än om det kommer dras från ett objekt i denna klass eller från Kortleksklassen.
-        //Använd denna i dealCards()
+    private static Card drawCard(Deck d){
+        return d.drawCard();
     }
-
+/*
     private static void nextTurn(){
         // Byter turen till nästa spelarens tur i listan med ospelade turer.
         //Player klassen kan ha en state som heter "played" vilket indikerar till gamemodel när rundan är över.
@@ -37,9 +39,10 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         //om en spelare raisar betten omvandla samtliga spelare med staten "played" till "unplayed".
     }
 
+
+
     private static void aPlayerRaised(){
         //Sätt det nya bettet som måste callas/raisas och lägg till i prePot.
-        playedPlayersToUnplayed();
         nextTurn();
     }
 
@@ -52,10 +55,71 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         //sätt dess players state till "folded"
         nextTurn();
     }
+*/
+    private void setChipsOnTableToZero(){
+        pot = 0;
+        prePot = 0;
+        bet = 0;
+    }
 
-    private static void nextRound(){
-        //när ingen spelare längre har staten "unplayed"
-        //lägg till prePot summan till pot
-        //
+    private void StartGame(Deck deck){
+        deck.shuffle();
+        dealCards();
+        setChipsOnTableToZero();
+        StartRound();
+    }
+
+    private void StartRound(){
+        //pay big/small blind
+        PlayRound();
+        NextRound();
+    }
+
+    private void NextRound(){
+        if (river.length == 0){
+            for (int i = 0; i < 2; i++) {
+                river.add(drawCard(self.deck));
+            }
+            PlayRound();
+            NextRound();
+        } else if (river.length < 5) {
+            river.add(drawCard(self.deck));
+            PlayRound();
+            NextRound();
+        } else if (river.length == 5) {
+            PlayRound();
+            EndGame();
+        }
+    }
+
+    private void PlayRound(){
+        while (!haveAllPlayersPlayed(players)){
+            //current player call/raise/fold -> call the respective method
+        }
+        pot += prePot;
+        prePot = 0;
+        bet = 0;
+    }
+
+    private Boolean haveAllPlayersPlayed(Player[] ps){
+        for (Player p : ps){
+            if (!p.get_lastmove().equals("Fold") || !p.get_lastmove().equals("Out")){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void EndGame(){
+        //give pot the winning player. The only player left without the state "Fold"
+        setChipsOnTableToZero();
+        river.clear();
+        /*
+        for player in players:
+            if player.get_state == "busted"
+                continue;
+            player.set_state("unplayed")
+         */
+        StartGame(new Deck());
     }
 }
