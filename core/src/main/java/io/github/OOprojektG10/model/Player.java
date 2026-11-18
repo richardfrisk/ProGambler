@@ -1,11 +1,10 @@
-package io.github.OOprojektG10;
+package io.github.OOprojektG10.model;
 
-import javax.smartcardio.Card;
+
 
 public class Player {
     protected int chip_count;
     protected Card[] hand = null;
-    private String[] states = { "Fold", "Call", "Check", "Raise" };
     private String last_move = null;
 
     // Create the player with a hand and a starting chip count
@@ -21,32 +20,32 @@ public class Player {
     // changes the players state to folded so the model knows it isn't playing more
     // of this hand
     public void fold() {
-        last_move = states[0];
+        last_move = "Fold";
     }
 
     // calls the change_chip_count funktion and changes the state of the player to
     // call
     public int call(int bet) {
         change_chip_count(bet, false);
-        last_move = states[1];
+        last_move = "Call";
         return chip_count;
     }
 
     public void check() {
-        last_move = states[2];
+        last_move = "Check";
     }
 
     // calls the change_chip_count funktion and changes the state of the player to
     // raise
     public int raise(int bet) {
         change_chip_count(bet, false);
-        last_move = states[3];
+        last_move = "Raise";
         return chip_count;
     }
 
     // check so that you have enough chips for the bet and handles if you dont
     private void change_chip_count(int bet, boolean add) {
-        if (add == false) {
+        if (!add) {
             if (chip_count - bet >= 0) {
                 chip_count -= bet;
             } else {
@@ -77,7 +76,13 @@ public class Player {
     }
 
     public void add_chips(int chips) {
-        change_chip_count(chips, true);
+        if (chips < 0){
+            throw new IllegalArgumentException("Cannot add a negative number of chips: " + chips);
+        }
+        else{
+            change_chip_count(chips, true);
+        }
+
     }
 
 }
