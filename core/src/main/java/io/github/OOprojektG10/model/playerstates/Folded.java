@@ -1,12 +1,12 @@
-package model.playerstates;
+package io.github.OOprojektG10.model.playerstates;
 
-import model.Player;
-import model.playerState;
+import io.github.OOprojektG10.model.Player;
+import io.github.OOprojektG10.model.playerState;
 
-public class Played implements playerState {
+public class Folded implements playerState {
     @Override
     public String get_stateString(Player player) {
-        return "Played";
+        return "Folded";
     }
 
     @Override

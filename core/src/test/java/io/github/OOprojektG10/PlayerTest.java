@@ -1,5 +1,6 @@
 package io.github.OOprojektG10;
 
+import io.github.OOprojektG10.model.Move;
 import io.github.OOprojektG10.model.Player;
 import io.github.OOprojektG10.model.Deck;
 import io.github.OOprojektG10.model.Card;
@@ -19,7 +20,7 @@ class PlayerTest {
     @Test
     void testFold() {
         player.fold();
-        assertEquals(player.get_lastmove(), "Fold");
+        assertEquals(player.get_lastmove(), Move.FOLD);
     }
 
     @Test
@@ -29,7 +30,7 @@ class PlayerTest {
 
         player.call(3000);
         assertEquals(player.get_chipCount(), 0);
-        assertEquals(player.get_lastmove(), "Call");
+        assertEquals(player.get_lastmove(), Move.CALL);
     }
 
     @Test
@@ -40,13 +41,13 @@ class PlayerTest {
         player.raise(3000);
         assertEquals(player.get_chipCount(), 0);
 
-        assertEquals(player.get_lastmove(), "Raise");
+        assertEquals(player.get_lastmove(), Move.RAISE);
     }
 
     @Test
     void testCheck(){
         player.check();
-        assertEquals(player.get_lastmove(), "Check");
+        assertEquals(player.get_lastmove(), Move.CHECK);
     }
 
     @Test
@@ -61,10 +62,10 @@ class PlayerTest {
 
     @Test
     void testHand(){
-        Card[] Hand = new Card[]{deck.drawCard(), deck.drawCard()};
-        player.set_hand(Hand);
-        assertEquals(player.get_hand(), Hand);
-
+        Card c1 = deck.drawCard(); Card c2 = deck.drawCard();
+        Card[] Hand = new Card[]{c1, c2};
+        player.set_hand(c1, c2);
+        assertArrayEquals(player.get_hand(), Hand);
 
 
     }

@@ -1,7 +1,7 @@
 package io.github.OOprojektG10;
 
-import model.Deck;
-import model.GameModel;
+import io.github.OOprojektG10.model.Deck;
+import io.github.OOprojektG10.model.GameModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

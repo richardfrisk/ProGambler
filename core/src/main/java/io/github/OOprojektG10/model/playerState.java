@@ -1,4 +1,4 @@
-package model;
+package io.github.OOprojektG10.model;
 
 public interface playerState {
     public String get_stateString(Player player);

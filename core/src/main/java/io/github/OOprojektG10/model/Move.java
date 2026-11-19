@@ -1,4 +1,4 @@
-package model;
+package io.github.OOprojektG10.model;
 
 public enum Move {
     FOLD,

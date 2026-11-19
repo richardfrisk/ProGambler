@@ -1,8 +1,8 @@
-package model.playerstates;
+package io.github.OOprojektG10.model.playerstates;
 
-import model.Move;
-import model.Player;
-import model.playerState;
+import io.github.OOprojektG10.model.Move;
+import io.github.OOprojektG10.model.Player;
+import io.github.OOprojektG10.model.playerState;
 
 public class Unplayed implements playerState {
     @Override
