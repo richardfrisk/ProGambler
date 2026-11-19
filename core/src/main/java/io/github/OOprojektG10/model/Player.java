@@ -95,12 +95,13 @@ public class Player {
 
     }
 
-    public void pay_chips(int chips) {
+    public int pay_chips(int chips) {
         if (chip_count < chips){
             throw new IllegalArgumentException("Cannot pay more chips than the player has");
         }
         else{
             change_chip_count(chips, false);
+            return chips;
         }
     }
 
