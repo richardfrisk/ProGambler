@@ -5,13 +5,11 @@ import io.github.OOprojektG10.model.playerstates.Unplayed;
 public class Player {
     private int chip_count;
 
-    protected Card[] hand = null;
-
+    private Card[] hand = null;
 
     //private static String[] moves = { "Fold", "Call", "Check", "Raise", "Out" }; Replaced with ENUM
     private Move last_move = null;
-
-    playerState state;
+    private playerState state;
 
     // Create the player with a hand and a starting chip count
     public Player(int _chip_count) {
@@ -28,6 +26,21 @@ public class Player {
     public String get_stateString() { return state.get_stateString(this); }
 
     public void set_last_move(Move move){ last_move = move; }
+
+    // returns the hand of the player
+    public Card[] get_hand() {
+        return hand;
+    }
+
+    // returns the state of the player
+    public Move get_lastmove() {
+        return last_move;
+    }
+    public boolean isActive(){ return (this.get_stateString().equals("Played") || this.get_stateString().equals("Unplayed")); }
+
+    public int get_chipCount() {
+        return chip_count;
+    }
 
     // changes the players state to folded so the model knows it isn't playing more
     // of this hand
@@ -52,7 +65,7 @@ public class Player {
     }
 
     // check so that you have enough chips for the bet and handles if you dont
-    public void change_chip_count(int bet, boolean add) {
+    private void change_chip_count(int bet, boolean add) {
         if (!add) {
             if (chip_count - bet >= 0) {
                 chip_count -= bet;
@@ -70,19 +83,7 @@ public class Player {
         // add logic for error handling to large of a bet
     }
 
-    // returns the hand of the player
-    public Card[] get_hand() {
-        return hand;
-    }
 
-    // returns the state of the player
-    public Move get_lastmove() {
-        return last_move;
-    }
-
-    public int get_chipCount() {
-        return chip_count;
-    }
 
     public void add_chips(int chips) {
         if (chips < 0){
@@ -92,6 +93,15 @@ public class Player {
             change_chip_count(chips, true);
         }
 
+    }
+
+    public void pay_chips(int chips) {
+        if (chip_count < chips){
+            throw new IllegalArgumentException("Cannot pay more chips than the player has");
+        }
+        else{
+            change_chip_count(chips, false);
+        }
     }
 
 

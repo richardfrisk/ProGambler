@@ -3,6 +3,7 @@ package io.github.OOprojektG10.model;
 import io.github.OOprojektG10.model.playerstates.Unplayed;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameModel {
 
@@ -12,20 +13,24 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     public int pot;
     public int prePot; //den mängd chips som läggs till i poten i slutet av rundan.
     public int bet;
+    private int blindCoinPos;
+    private int bigBlind;
 
     protected ArrayList<Card> river = new ArrayList<Card>();
     private Deck deck;
 
     protected ArrayList<Player> players; //= new ArrayList<Player>();
 
-    public GameModel(int Starting_Chips, Deck deck, ArrayList<Player> players){
+    public GameModel(int Starting_Chips, Deck deck, ArrayList<Player> players, int initialBlind){
         setChipsOnTableToZero();
+        blindCoinPos = new Random().nextInt(players.size());
+        this.bigBlind = initialBlind;
 
         this.deck = deck;
         this.players = players;
     }
 
-    public int activePlayers(ArrayList<Player> players){
+    public int activePlayersCount(ArrayList<Player> players){
         int count = 0;
         for (Player p : players){
             if (p.get_stateString().equals("Played") || p.get_stateString().equals("Unplayed")){
@@ -35,8 +40,28 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         return count;
     }
 
+    private int getHandValue(Card[] hand){
+        // TODO: Hitta på ett sätt att evaluera hand värdet
+        return 0;
+    }
+
     public Player getWinner(ArrayList<Player> players){
-        return new Player(1010);
+        Player winningPlayer = null;
+        for (Player p1 : players){
+            for (Player p2 : players) {
+                if (p1.isActive() && p2.isActive() && !p1.equals(p2)){
+                    if (getHandValue(p1.get_hand()) < getHandValue(p2.get_hand())) {
+                        winningPlayer = p2;
+                    } else if (getHandValue(p1.get_hand()) > getHandValue(p2.get_hand())){
+                        winningPlayer = p1;
+                    } else {
+                        p1.add_chips(pot/2);
+                        p2.add_chips(pot/2);
+                    }
+                }
+            }
+        }
+        return winningPlayer;
     }
 
     private void dealCards(){
@@ -54,7 +79,97 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private static Card drawCard(Deck d){
         return d.drawCard();
     }
-/* -- DEPRECATED --
+
+    public void setChipsOnTableToZero(){
+        pot = 0;
+        prePot = 0;
+        bet = 0;
+    }
+
+    private void StartGame(Deck deck){
+        deck.shuffle();
+        dealCards();
+        setChipsOnTableToZero();
+        StartRound();
+    }
+
+    private void StartRound(){
+        payBlinds();
+        PlayRound();
+        NextRound();
+    }
+
+    private void payBlinds() {
+        players.get(blindCoinPos).pay_chips(bigBlind);
+        players.get(blindCoinPos -1).pay_chips(bigBlind/2);
+    }
+
+    private void NextRound(){
+        moveBlindCoin();
+        if (river.isEmpty()){
+            for (int i = 0; i < 2; i++) {
+                river.add(drawCard(this.deck));
+            }
+            PlayRound();
+            NextRound();
+        } else if (river.size() < 5) {
+            river.add(drawCard(this.deck));
+            PlayRound();
+            NextRound();
+        } else if (river.size() == 5) {
+            PlayRound();
+            EndGame();
+        }
+    }
+
+    private void moveBlindCoin() {
+        blindCoinPos++;
+        blindCoinPos = blindCoinPos % players.size();
+    }
+
+    private void increaseBlind(int chips){
+        bigBlind += chips;
+    }
+
+    private void PlayRound(){
+        if (activePlayersCount(this.players) == 1){
+            EndGame();
+        } else {
+            while (!haveAllPlayersPlayed(this.players)) {
+                //TODO: current player call/raise/fold -> call the respective method
+
+            }
+            pot += prePot;
+            prePot = 0;
+            bet = 0;
+        }
+    }
+
+    private Boolean haveAllPlayersPlayed(ArrayList<Player> ps){
+        for (Player p : ps){
+            if (p.get_stateString().equals("Unplayed")){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void EndGame(){
+        //give pot the winning player. The only player left without the state "Fold" or "Busted" or with best hand
+        try {
+            getWinner(players).add_chips(pot);
+        } catch (NullPointerException ignored) { }
+
+        setChipsOnTableToZero();
+        river.clear();
+        for (Player player : this.players) {
+            if (player.get_stateString().equals("OUT")){ continue; }
+            player.set_state(new Unplayed());
+        }
+        StartGame(new Deck());
+    }
+
+    /* -- DEPRECATED --
     private static void nextTurn(){
         // Byter turen till nästa spelarens tur i listan med ospelade turer.
         //Player klassen kan ha en state som heter "played" vilket indikerar till GameModel när rundan är över.
@@ -82,74 +197,4 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         nextTurn();
     }
 */
-    public void setChipsOnTableToZero(){
-        pot = 0;
-        prePot = 0;
-        bet = 0;
-    }
-
-    private void StartGame(Deck deck){
-        deck.shuffle();
-        dealCards();
-        setChipsOnTableToZero();
-        StartRound();
-    }
-
-    private void StartRound(){
-        //pay big/small blind
-        PlayRound();
-        NextRound();
-    }
-
-    private void NextRound(){
-        if (river.isEmpty()){
-            for (int i = 0; i < 2; i++) {
-                river.add(drawCard(this.deck));
-            }
-            PlayRound();
-            NextRound();
-        } else if (river.size() < 5) {
-            river.add(drawCard(this.deck));
-            PlayRound();
-            NextRound();
-        } else if (river.size() == 5) {
-            PlayRound();
-            EndGame();
-        }
-    }
-
-    private void PlayRound(){
-        if (activePlayers(this.players) == 1){
-            EndGame();
-        } else {
-            while (!haveAllPlayersPlayed(this.players)) {
-                //current player call/raise/fold -> call the respective method
-
-            }
-            pot += prePot;
-            prePot = 0;
-            bet = 0;
-        }
-    }
-
-    private Boolean haveAllPlayersPlayed(ArrayList<Player> ps){
-        for (Player p : ps){
-            if (p.get_stateString().equals("Unplayed")){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void EndGame(){
-        //give pot the winning player. The only player left without the state "Fold" or "Busted"
-
-        setChipsOnTableToZero();
-        river.clear();
-        for (Player player : this.players) {
-            if (player.get_stateString().equals("OUT")){ continue; }
-            player.set_state(new Unplayed());
-        }
-        StartGame(new Deck());
-    }
 }

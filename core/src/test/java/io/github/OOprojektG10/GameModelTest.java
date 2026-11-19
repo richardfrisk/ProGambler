@@ -20,7 +20,7 @@ public class GameModelTest {
 
     @BeforeEach
     void setUp() {
-        dealer = new GameModel(1000, new Deck(), players);
+        dealer = new GameModel(1000, new Deck(), players, 100);
     }
 
     @Test
