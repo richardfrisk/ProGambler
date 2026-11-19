@@ -1,5 +1,7 @@
 package io.github.OOprojektG10.model;
 
+import io.github.OOprojektG10.model.playerstates.Unplayed;
+
 import java.util.ArrayList;
 
 public class GameModel {
@@ -14,17 +16,31 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     protected ArrayList<Card> river = new ArrayList<Card>();
     private Deck deck;
 
-    protected ArrayList<Player> players = new ArrayList<Player>();
+    protected ArrayList<Player> players; //= new ArrayList<Player>();
 
-    public GameModel(int Starting_Chips, Deck deck, int player_count){
+    public GameModel(int Starting_Chips, Deck deck, ArrayList<Player> players){
         setChipsOnTableToZero();
 
         this.deck = deck;
+        this.players = players;
+    }
 
+    public int activePlayers(ArrayList<Player> players){
+        int count = 0;
+        for (Player p : players){
+            if (p.get_stateString().equals("Played") || p.get_stateString().equals("Unplayed")){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public Player getWinner(ArrayList<Player> players){
+        return new Player(1010);
     }
 
     private void dealCards(){
-        for (Player player : players){
+        for (Player player : this.players){
             if (!player.get_stateString().equals("OUT")){
                 Card c1 = this.deck.drawCard();
                 Card c2 = this.deck.drawCard();
@@ -103,17 +119,22 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void PlayRound(){
-        while (!haveAllPlayersPlayed(players)){
-            //current player call/raise/fold -> call the respective method
+        if (activePlayers(this.players) == 1){
+            EndGame();
+        } else {
+            while (!haveAllPlayersPlayed(this.players)) {
+                //current player call/raise/fold -> call the respective method
+
+            }
+            pot += prePot;
+            prePot = 0;
+            bet = 0;
         }
-        pot += prePot;
-        prePot = 0;
-        bet = 0;
     }
 
     private Boolean haveAllPlayersPlayed(ArrayList<Player> ps){
         for (Player p : ps){
-            if (!p.get_stateString().equals("Folded") || !p.get_stateString().equals("OUT")){
+            if (p.get_stateString().equals("Unplayed")){
                 return false;
             }
         }
@@ -122,16 +143,12 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
     private void EndGame(){
         //give pot the winning player. The only player left without the state "Fold" or "Busted"
+
         setChipsOnTableToZero();
         river.clear();
-        /*
-        for player in players:
-            if player.get_stateString == "busted"
-                continue;
-            player.set_state("unplayed")
-         */
-        for (Player player : players) {
-
+        for (Player player : this.players) {
+            if (player.get_stateString().equals("OUT")){ continue; }
+            player.set_state(new Unplayed());
         }
         StartGame(new Deck());
     }
