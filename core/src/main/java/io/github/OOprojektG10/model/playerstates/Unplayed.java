@@ -21,9 +21,8 @@ public class Unplayed implements playerState {
     // call
     @Override
     public int call(Player player, int bet) {
-        player.pay_chips(bet);
         player.set_last_move(Move.CALL);
-        return player.get_chipCount();
+        return player.pay_chips(bet);
     }
 
     @Override
@@ -35,8 +34,7 @@ public class Unplayed implements playerState {
     // raise
     @Override
     public int raise(Player player, int bet) {
-        player.pay_chips(bet);
         player.set_last_move(Move.RAISE);
-        return player.get_chipCount();
+        return player.pay_chips(bet);
     }
 }
