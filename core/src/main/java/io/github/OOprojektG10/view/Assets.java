@@ -47,7 +47,6 @@ public class Assets {
 
     public void getCard(String suite, int rank){
 
-        loadSuit(suite, rank);
 
     }
 

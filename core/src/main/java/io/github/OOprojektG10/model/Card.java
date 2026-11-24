@@ -39,7 +39,12 @@ public class Card {
     }
 
     public int translateRankToInt(){
-        return rankValueMap.get(this.rank);
+        try {
+            return rankValueMap.get(this.rank);
+        } catch (Exception e) {
+            return 0;
+        }
+
     }
 
     @Override
