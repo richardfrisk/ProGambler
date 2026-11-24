@@ -1,32 +1,43 @@
 package io.github.OOprojektG10;
 
+import io.github.OOprojektG10.model.Deck;
+import io.github.OOprojektG10.model.GameModel;
+import io.github.OOprojektG10.model.Player;
+import io.github.OOprojektG10.view.DrawPanel;
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
+
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+    ArrayList<Player> players = new ArrayList<>() {};
+
+
+
+    GameModel model = new GameModel(1000,
+        new Deck(),
+        players,
+        200);
+    DrawPanel draw = new DrawPanel(model);
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        draw.create();
+    }
+
+    public void resize(int width, int height) {
+        draw.resize(width, height);
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+        //mode.update????
+        draw.render();
     }
-
     @Override
     public void dispose() {
-        batch.dispose();
-        image.dispose();
+        draw.dispose();
+        //batch.dispose();
     }
 }
