@@ -2,6 +2,7 @@ package io.github.OOprojektG10.view;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import io.github.OOprojektG10.model.Card;
 
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,28 @@ public class Assets {
 
     }
 
-    private void loadSuit(String suit, String filename){
+    private TextureRegion[] loadSuit(String suit, int rank) {
+        String filename;
 
-        sheet =  new Texture(filename);
+        if (suit == "Spades"){
+            filename = "Cards-debug-Spades.png";
+        }
+        else if (suit == "Clubs") {
+            filename = "Cards-debug-Clubs.png";
+        }
+        else if (suit == "Diamond"){
+            filename = "Cards-debug-Diamonds.png";
+        }
+
+        else if (suit == "Hearts"){
+            filename = "Cards-debug-Hearts.png";
+        }
+
+
+
+
+
+        sheet = new Texture(filename);
         sheet.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         textureList.add(sheet);
 
@@ -30,24 +50,28 @@ public class Assets {
         TextureRegion[] cardFlat = new TextureRegion[cardWidth * cardHeight];
 
         int index = 0;
-        for (int i = 0; i < cardHeight; i++){
-            for (int j = 0; j < cardWidth; j++){
+        for (int i = 0; i < cardHeight; i++) {
+            for (int j = 0; j < cardWidth; j++) {
                 cardFlat[index++] = cardGrid[i][j];
 
             }
 
-        if (cardBack == null){
-            cardBack = cardFlat[13];
+            if (cardBack == null) {
+                cardBack = cardFlat[13];
+            }
+
+
         }
-        }
-
-
-
+        return cardFlat;
     }
 
-    public void getCard(String suite, int rank){
 
-        loadSuit(suite, rank);
+
+    public TextureRegion getCardSprite(Card card){
+
+        return loadSuit(card.getSuit(), card.translateRankToInt());
+
+
 
     }
 
