@@ -76,8 +76,9 @@ public class DrawPanel {
         spritebatch.setProjectionMatrix(viewport.getCamera().combined);
         spritebatch.begin();
 
-        for (Card c : dealer.getRiver)
-        spritebatch.draw(assets.getCard(,), 0.67, 1);
+        for (Card c : dealer.getRiver()) {
+            spritebatch.draw(assets.getCard(c.getSuit(), c.translateRankToInt()), 0.67, 1);
+        }
 
         spritebatch.end();
     }

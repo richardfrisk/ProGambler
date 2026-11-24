@@ -29,6 +29,10 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         this.players = players;
     }
 
+    public ArrayList<Card> getRiver() {
+        return (ArrayList<Card>) this.river.clone();
+    }
+
     public int activePlayersCount(ArrayList<Player> players){
         int count = 0;
         for (Player p : players){
