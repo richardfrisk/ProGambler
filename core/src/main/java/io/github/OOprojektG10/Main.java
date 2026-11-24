@@ -11,11 +11,13 @@ import java.util.ArrayList;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
+    ArrayList<Player> players = new ArrayList<>() {};
+
+
 
     GameModel model = new GameModel(1000,
         new Deck(),
-        new ArrayList<>(){new Player, new Player
-        },
+        players,
         200);
     DrawPanel draw = new DrawPanel(model);
 

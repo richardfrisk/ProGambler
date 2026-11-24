@@ -77,7 +77,7 @@ public class DrawPanel {
         spritebatch.begin();
 
         for (Card c : dealer.getRiver()) {
-            spritebatch.draw(assets.getCard(c.getSuit(), c.translateRankToInt()), 0.67, 1);
+            spritebatch.draw(assets.getCard(c.getSuit(), c.translateRankToInt()));
         }
 
         spritebatch.end();
