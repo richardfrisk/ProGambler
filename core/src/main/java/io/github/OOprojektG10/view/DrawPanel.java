@@ -1,13 +1,14 @@
-package view;
+package io.github.OOprojektG10.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import io.github.OOprojektG10.model.Card;
+import io.github.OOprojektG10.model.GameModel;
 
 public class DrawPanel {
     Assets assets = new Assets();
@@ -16,8 +17,12 @@ public class DrawPanel {
     private SpriteBatch spritebatch;
     private Sprite sprite;
     private OrthographicCamera camera;
+    private GameModel dealer;
     FitViewport viewport;
 
+    public DrawPanel(GameModel model) {
+        this.dealer = model;
+    }
 
     public void create() {
 
@@ -71,7 +76,8 @@ public class DrawPanel {
         spritebatch.setProjectionMatrix(viewport.getCamera().combined);
         spritebatch.begin();
 
-        //spritebatch.draw(assets.getCard("spades",10), 0.67, 1);
+        for (Card c : dealer.getRiver)
+        spritebatch.draw(assets.getCard(,), 0.67, 1);
 
         spritebatch.end();
     }

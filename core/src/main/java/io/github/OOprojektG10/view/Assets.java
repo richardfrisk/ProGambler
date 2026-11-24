@@ -1,4 +1,4 @@
-package view;
+package io.github.OOprojektG10.view;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -47,7 +47,7 @@ public class Assets {
 
     public void getCard(String suite, int rank){
 
-        return loadsuit(suite, rank);
+        loadSuit(suite, rank);
 
     }
 

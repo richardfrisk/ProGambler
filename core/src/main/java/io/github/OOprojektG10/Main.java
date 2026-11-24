@@ -1,11 +1,12 @@
 package io.github.OOprojektG10;
 
-import view.DrawPanel;
+import io.github.OOprojektG10.view.DrawPanel;
 import com.badlogic.gdx.ApplicationAdapter;
 
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
+
     DrawPanel draw = new DrawPanel();
 
     @Override

@@ -1,4 +1,4 @@
-package view;
+package io.github.OOprojektG10.view;
 
 import com.badlogic.gdx.graphics.Texture;
 
