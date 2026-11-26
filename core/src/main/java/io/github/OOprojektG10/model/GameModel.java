@@ -15,6 +15,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private int blindCoinPos;
     private int bigBlind;
     private int currentPlayer;
+    private final int dealerPos;
 
     protected ArrayList<Card> river = new ArrayList<Card>();
     private Deck deck;
@@ -26,6 +27,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         blindCoinPos = new Random().nextInt(players.size());
         this.bigBlind = initialBlind;
         currentPlayer = (blindCoinPos + 1) % players.size();
+        dealerPos = new Random().nextInt(players.size());
 
         this.deck = deck;
         this.players = players;
@@ -269,8 +271,56 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
         if  (river.isEmpty()) {
             payBlinds();
-
+        } else {
+            for (Player player : players) {
+                player.contribution = 0;
+                if (player.get_stateString().equals("Played")){
+                    player.set_state(new Unplayed());
+                }
+            }
+            currentBet = 0;
         }
+
+
+    }
+
+    public void act(Move action, int raiseTo) {
+        Player p = players.get(currentPlayer);
+
+        if (!p.get_stateString().equals("Unplayed")){
+            return;
+        }
+
+        int amountToCall = currentBet - p.contribution;
+
+        switch (action){
+            case FOLD -> {
+                p.fold();
+                advancePlayer();
+            }
+            case CHECK -> {
+                if (amountToCall == 0){
+                    p.check();
+                    advancePlayer();
+                }
+            }
+            case CALL -> {
+                if (amountToCall == 0){ break; }
+                contributions += p.call(amountToCall);
+                advancePlayer();
+            }
+            case RAISE -> {
+                if (raiseTo > currentBet) {
+                    playedPlayersToUnplayed();
+                    contributions += p.raiseBy(raiseTo - p.contribution);
+                    currentBet = p.contribution;
+                    advancePlayer();
+                }
+            }
+            default -> throw new RuntimeException("Invalid action, in act()");
+        }
+
+
     }
 
     private Boolean haveAllPlayersPlayed(ArrayList<Player> ps){
@@ -302,6 +352,14 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private void playedPlayersToUnplayed(){
         for (Player player : this.players) {
             if (player.get_stateString().equals("Played")){ player.set_state(new Unplayed()); }
+        }
+    }
+
+    private void advancePlayer() {
+        currentPlayer++;
+        currentPlayer = currentPlayer % players.size();
+        if (!players.get(currentPlayer).get_stateString().equals("Unplayed")){
+            advancePlayer();
         }
     }
 

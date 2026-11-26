@@ -24,22 +24,19 @@ public class Unplayed implements playerState {
     public int call(Player player, int bet) {
         player.set_last_move(Move.CALL);
         player.set_state(new Played());
-        return player.pay_chips(bet - player.contribution);
+        return player.pay_chips(bet);
     }
 
     @Override
-    public void check(Player player, int bet) {
-        if (player.contribution == bet) {
-            player.set_last_move(Move.CHECK);
-            player.set_state(new Played());
-        }
-
+    public void check(Player player) {
+        player.set_last_move(Move.CHECK);
+        player.set_state(new Played());
     }
 
     // calls the change_chip_count funktion and changes the state of the player to
-    // raiseBy
+    // raise
     @Override
-    public int raiseBy(Player player, int bet) {
+    public int raise(Player player, int bet) {
         player.set_last_move(Move.RAISE);
         player.set_state(new Played());
         return player.pay_chips(bet);

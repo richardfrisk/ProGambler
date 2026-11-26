@@ -46,7 +46,7 @@ class PlayerTest {
 
     @Test
     void testCheck(){
-        player.check(0);
+        player.check();
         assertEquals(player.get_lastmove(), Move.CHECK);
     }
 

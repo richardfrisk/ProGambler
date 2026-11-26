@@ -55,14 +55,14 @@ public class Player {
         return state.call(this, bet);
     }
 
-    public void check(int bet) {
-        state.check(this, bet);
+    public void check() {
+        state.check(this);
     }
 
     // calls the change_chip_count funktion and changes the state of the player to
-    // raiseBy
+    // raise
     public int raiseBy(int bet) {
-        return state.raiseBy(this, bet);
+        return state.raise(this, bet);
     }
 
     // check so that you have enough chips for the bet and handles if you dont

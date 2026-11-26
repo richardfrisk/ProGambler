@@ -20,12 +20,12 @@ public class Played implements playerState {
     }
 
     @Override
-    public void check(Player player, int bet) {
+    public void check(Player player) {
 
     }
 
     @Override
-    public int raiseBy(Player player, int bet) {
+    public int raise(Player player, int bet) {
         return -1;
     }
 }
