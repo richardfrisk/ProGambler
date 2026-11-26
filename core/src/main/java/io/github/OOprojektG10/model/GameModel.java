@@ -225,6 +225,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         deck.shuffle();
         dealCards();
         setChipsOnTableToZero();
+        moveBlindCoin();
         PlayRound();
     }
 
@@ -235,7 +236,6 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void NextRound(){
-        moveBlindCoin();
         if (river.isEmpty()){
             for (int i = 0; i < 3; i++) {
                 river.add(drawCard(this.deck));
@@ -264,6 +264,10 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private void PlayRound(){
         if (activePlayersCount(this.players) == 1) {
             pot += contributions;
+            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") ||
+                !players.get(currentPlayer).get_stateString().equals("Played")){
+                advancePlayer();
+            }
             players.get(currentPlayer).add_chips(pot);
             EndGame();
             return;
@@ -271,6 +275,11 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
         if  (river.isEmpty()) {
             payBlinds();
+            currentPlayer = blindCoinPos + 1;
+            currentPlayer %= players.size();
+            if (!getPlayerStateString(currentPlayer).equals("Unplayed")){
+                advancePlayer();
+            }
         } else {
             for (Player player : players) {
                 player.contribution = 0;
@@ -278,6 +287,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
                     player.set_state(new Unplayed());
                 }
             }
+            currentPlayer = dealerPos;
             currentBet = 0;
         }
 
@@ -358,9 +368,23 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private void advancePlayer() {
         currentPlayer++;
         currentPlayer = currentPlayer % players.size();
-        if (!players.get(currentPlayer).get_stateString().equals("Unplayed")){
+        if (!players.get(currentPlayer).get_stateString().equals("Unplayed") ||
+            !noUnplayedPlayers()){
             advancePlayer();
         }
+    }
+
+    private boolean noUnplayedPlayers() {
+        for (int i = 0; i < players.size(); i++) {
+            if (getPlayerStateString(i).equals("Unplayed")){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getPlayerStateString(int i) {
+        return players.get(i).get_stateString();
     }
 
     /* -- DEPRECATED --
