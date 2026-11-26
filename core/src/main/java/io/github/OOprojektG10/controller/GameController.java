@@ -1,14 +1,14 @@
-package io.github.OOprojektG10;
+package io.github.OOprojektG10.controller;
 
-import model.gamemodel;
+import io.github.OOprojektG10.model.GameModel;
 
 public class GameController implements GameObserver {
 
-    private gamemodel model;
+    private GameModel model;
 
-    public GameController(gamemodel model) {
+    public GameController(GameModel model) {
         this.model = model;
-        model.addObserver(this); // Förutsätter att gamemodell implementerar addObserver
+        // model.addObserver(this); // Förutsätter att gamemodell implementerar addObserver
     }
 
     public void playerCalls() {

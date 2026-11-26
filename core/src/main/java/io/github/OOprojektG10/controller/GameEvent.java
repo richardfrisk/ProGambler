@@ -1,4 +1,4 @@
-package io.github.OOprojektG10;
+package io.github.OOprojektG10.controller;
 
 public enum GameEvent {
 // Olika händelser i spelet

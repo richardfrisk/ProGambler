@@ -4,6 +4,7 @@ import io.github.OOprojektG10.model.playerstates.Unplayed;
 
 public class Player {
     private int chip_count;
+    public int contribution = 0;
 
     private Card[] hand = null;
 
@@ -54,14 +55,14 @@ public class Player {
         return state.call(this, bet);
     }
 
-    public void check() {
-        state.check(this);
+    public void check(int bet) {
+        state.check(this, bet);
     }
 
     // calls the change_chip_count funktion and changes the state of the player to
-    // raise
-    public int raise(int bet) {
-        return state.raise(this, bet);
+    // raiseBy
+    public int raiseBy(int bet) {
+        return state.raiseBy(this, bet);
     }
 
     // check so that you have enough chips for the bet and handles if you dont
@@ -101,6 +102,7 @@ public class Player {
         }
         else{
             change_chip_count(chips, false);
+            contribution += chips;
             return chips;
         }
     }

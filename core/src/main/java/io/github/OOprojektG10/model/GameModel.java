@@ -10,10 +10,11 @@ public class GameModel {
 funktioner: Deala korten, pull card from kortlek
 spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     public int pot;
-    public int prePot; //den mängd chips som läggs till i poten i slutet av rundan.
-    public int bet;
+    public int contributions; //den mängd chips som läggs till i poten i slutet av rundan.
+    public int currentBet;
     private int blindCoinPos;
     private int bigBlind;
+    private int currentPlayer;
 
     protected ArrayList<Card> river = new ArrayList<Card>();
     private Deck deck;
@@ -24,6 +25,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         setChipsOnTableToZero();
         blindCoinPos = new Random().nextInt(players.size());
         this.bigBlind = initialBlind;
+        currentPlayer = (blindCoinPos + 1) % players.size();
 
         this.deck = deck;
         this.players = players;
@@ -44,9 +46,10 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private Score getHandValue(Card[] hand){
-        // TODO: Hitta på ett sätt att evaluera hand värdet VÄLDIGT KREATIVT :-)
         ArrayList<Card> hand7 = new ArrayList<Card>(river);
         hand7.addAll(Arrays.asList(hand));
+
+        Score bestHandValue = new Score("", 0, 0);
 
         for (int i = 0; i < hand7.size(); i++) {
             for (int j = i + 1; j < hand7.size(); j++) {
@@ -59,11 +62,14 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
                 }
 
                 Score handValue = handEval(hand5);
+                if (handValue.getWeight() > bestHandValue.getWeight()){
+                    bestHandValue = handValue;
+                } else if (handValue.getValue() > bestHandValue.getValue()) {
+                    bestHandValue = handValue;
+                }
             }
         }
-
-
-         //return new Score("", 0, 0);
+        return bestHandValue;
     }
 
     private Score handEval(ArrayList<Card> h) {
@@ -209,26 +215,21 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
     public void setChipsOnTableToZero(){
         pot = 0;
-        prePot = 0;
-        bet = 0;
+        contributions = 0;
+        currentBet = 0;
     }
 
     private void StartGame(Deck deck){
         deck.shuffle();
         dealCards();
         setChipsOnTableToZero();
-        StartRound();
-    }
-
-    private void StartRound(){
-        payBlinds();
         PlayRound();
-        NextRound();
     }
 
     private void payBlinds() {
-        pot += players.get(blindCoinPos).pay_chips(bigBlind);
-        pot += players.get(blindCoinPos -1).pay_chips(bigBlind/2);
+        contributions += players.get(blindCoinPos).pay_chips(bigBlind);
+        contributions += players.get(blindCoinPos -1).pay_chips(bigBlind/2);
+        currentBet = bigBlind;
     }
 
     private void NextRound(){
@@ -259,16 +260,16 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void PlayRound(){
-        if (activePlayersCount(this.players) == 1){
+        if (activePlayersCount(this.players) == 1) {
+            pot += contributions;
+            players.get(currentPlayer).add_chips(pot);
             EndGame();
-        } else {
-            while (!haveAllPlayersPlayed(this.players)) {
-                //TODO: current player call/raise/fold -> call the respective method
+            return;
+        }
 
-            }
-            pot += prePot;
-            prePot = 0;
-            bet = 0;
+        if  (river.isEmpty()) {
+            payBlinds();
+
         }
     }
 
@@ -283,9 +284,11 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
     private void EndGame(){
         //give pot the winning player. The only player left without the state "Fold" or "Busted" or with best hand
-        try {
-            getWinner(players).add_chips(pot);
-        } catch (NullPointerException ignored) { }
+        if (activePlayersCount(this.players) > 1) {
+            try {
+                getWinner(players).add_chips(pot);
+            } catch (NullPointerException ignored) {}
+        }
 
         setChipsOnTableToZero();
         river.clear();
@@ -296,6 +299,12 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         StartGame(new Deck());
     }
 
+    private void playedPlayersToUnplayed(){
+        for (Player player : this.players) {
+            if (player.get_stateString().equals("Played")){ player.set_state(new Unplayed()); }
+        }
+    }
+
     /* -- DEPRECATED --
     private static void nextTurn(){
         // Byter turen till nästa spelarens tur i listan med ospelade turer.
@@ -303,19 +312,17 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
         //När alla spelare har en annan state än "unplayed", gå till nästa runda.
     }
 
-    private static void playedPlayersToUnplayed(){
-        //om en spelare raisar betten omvandla samtliga spelare med staten "played" till "unplayed".
-    }
+
 
 
 
     private static void aPlayerRaised(){
-        //Sätt det nya bettet som måste callas/raisas och lägg till i prePot.
+        //Sätt det nya bettet som måste callas/raisas och lägg till i contributions.
         nextTurn();
     }
 
     private static void aPlayerCalled(){
-        //lägg till bettet i prePot
+        //lägg till bettet i contributions
         nextTurn();
     }
 

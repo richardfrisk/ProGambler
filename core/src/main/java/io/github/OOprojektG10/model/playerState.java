@@ -11,9 +11,9 @@ public interface playerState {
     // call
     public int call(Player player, int bet);
 
-    public void check(Player player);
+    public void check(Player player, int bet);
 
     // calls the change_chip_count funktion and changes the state of the player to
-    // raise
-    public int raise(Player player, int bet);
+    // raiseBy
+    public int raiseBy(Player player, int bet);
 }

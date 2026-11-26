@@ -34,11 +34,11 @@ class PlayerTest {
     }
 
     @Test
-    void testRaise(){
-        player.raise(200);
+    void testRaiseBy(){
+        player.raiseBy(200);
         assertEquals(player.get_chipCount(), 2800);
 
-        player.raise(3000);
+        player.raiseBy(3000);
         assertEquals(player.get_chipCount(), 0);
 
         assertEquals(player.get_lastmove(), Move.RAISE);
@@ -46,7 +46,7 @@ class PlayerTest {
 
     @Test
     void testCheck(){
-        player.check();
+        player.check(0);
         assertEquals(player.get_lastmove(), Move.CHECK);
     }
 

@@ -25,12 +25,12 @@ public class GameModelTest {
 
     @Test
     void testSetChipsOnTableToZero(){
-        dealer.bet = 10; dealer.pot = 10; dealer.prePot = 10;
+        dealer.currentBet = 10; dealer.pot = 10; dealer.contributions = 10;
 
         dealer.setChipsOnTableToZero();
 
         assertEquals(dealer.pot, 0);
-        assertEquals(dealer.bet, 0);
-        assertEquals(dealer.prePot, 0);
+        assertEquals(dealer.currentBet, 0);
+        assertEquals(dealer.contributions, 0);
     }
 }
