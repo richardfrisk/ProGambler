@@ -188,13 +188,10 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
     private Player comparePlayerHands(Player p1, Player p2) {
         Player winningPlayer = null;
-        if (getHandValue(p1.get_hand()).getValue() < getHandValue(p2.get_hand()).getValue()) {
+        if (getHandValue(p1.get_hand()).getWeight() < getHandValue(p2.get_hand()).getWeight()) {
             winningPlayer = p2;
         } else if (getHandValue(p1.get_hand()).getValue() > getHandValue(p2.get_hand()).getValue()){
             winningPlayer = p1;
-        } else {
-            p1.add_chips(pot/2);
-            p2.add_chips(pot/2);
         }
         return winningPlayer;
     }
@@ -230,8 +227,12 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void payBlinds() {
+        int smallBlindCoin = (blindCoinPos -1);
+        if (smallBlindCoin < 0){
+            smallBlindCoin = players.size() - 1;
+        }
         contributions += players.get(blindCoinPos).pay_chips(bigBlind);
-        contributions += players.get(blindCoinPos -1).pay_chips(bigBlind/2);
+        contributions += players.get(smallBlindCoin).pay_chips(bigBlind/2);
         currentBet = bigBlind;
     }
 
@@ -240,14 +241,13 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
             for (int i = 0; i < 3; i++) {
                 river.add(drawCard(this.deck));
             }
+            playedPlayersToUnplayed();
             PlayRound();
-            NextRound();
         } else if (river.size() < 5) {
             river.add(drawCard(this.deck));
+            playedPlayersToUnplayed();
             PlayRound();
-            NextRound();
         } else if (river.size() == 5) {
-            PlayRound();
             EndGame();
         }
     }
@@ -262,14 +262,31 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void PlayRound(){
+        /*
+        if (river.isEmpty()) {
+            payBlinds();
+            playedPlayersToUnplayed();
+        } */
+
         if (activePlayersCount(this.players) == 1) {
             pot += contributions;
-            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") ||
+            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
                 !players.get(currentPlayer).get_stateString().equals("Played")){
                 advancePlayer();
             }
             players.get(currentPlayer).add_chips(pot);
             EndGame();
+            return;
+        }
+
+        if (allPlayersHavePlayed(players)) {
+            pot += contributions;
+            currentPlayer = dealerPos;
+            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
+                !players.get(currentPlayer).get_stateString().equals("Played")){
+                advancePlayer();
+            }
+            NextRound();
             return;
         }
 
@@ -291,15 +308,17 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
             currentBet = 0;
         }
 
-
     }
 
-    public void act(Move action, int raiseTo) {
-        Player p = players.get(currentPlayer);
-
-        if (!p.get_stateString().equals("Unplayed")){
+    public void act(Player caller, Move action, int raiseTo) {
+        if (!caller.get_stateString().equals("Unplayed") || !caller.equals(players.get(currentPlayer))){
             return;
         }
+
+        if (!getPlayerStateString(currentPlayer).equals("Unplayed")){
+            advancePlayer();
+        }
+        Player p = players.get(currentPlayer);
 
         int amountToCall = currentBet - p.contribution;
 
@@ -312,10 +331,12 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
                 if (amountToCall == 0){
                     p.check();
                     advancePlayer();
+                } else {
+                    act(caller, Move.CALL, raiseTo);
                 }
             }
             case CALL -> {
-                if (amountToCall == 0){ break; }
+                if (amountToCall == 0){ act(caller, Move.CHECK, raiseTo); }
                 contributions += p.call(amountToCall);
                 advancePlayer();
             }
@@ -325,15 +346,16 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
                     contributions += p.raiseBy(raiseTo - p.contribution);
                     currentBet = p.contribution;
                     advancePlayer();
+                } else {
+                    throw new RuntimeException("Input valid raise amount");
                 }
             }
             default -> throw new RuntimeException("Invalid action, in act()");
         }
-
-
+        PlayRound();
     }
 
-    private Boolean haveAllPlayersPlayed(ArrayList<Player> ps){
+    private Boolean allPlayersHavePlayed(ArrayList<Player> ps){
         for (Player p : ps){
             if (p.get_stateString().equals("Unplayed")){
                 return false;
@@ -368,15 +390,19 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     private void advancePlayer() {
         currentPlayer++;
         currentPlayer = currentPlayer % players.size();
-        if (!players.get(currentPlayer).get_stateString().equals("Unplayed") ||
+        if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
             !noUnplayedPlayers()){
+            advancePlayer();
+        }
+        if (noUnplayedPlayers() &&
+            !players.get(currentPlayer).get_stateString().equals("Played")){
             advancePlayer();
         }
     }
 
     private boolean noUnplayedPlayers() {
-        for (int i = 0; i < players.size(); i++) {
-            if (getPlayerStateString(i).equals("Unplayed")){
+        for (Player p : players) {
+            if (p.get_stateString().equals("Unplayed")){
                 return false;
             }
         }

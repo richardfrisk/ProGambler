@@ -1,5 +1,6 @@
 package io.github.OOprojektG10.model;
 
+import io.github.OOprojektG10.model.playerstates.Out;
 import io.github.OOprojektG10.model.playerstates.Unplayed;
 
 public class Player {
@@ -73,6 +74,7 @@ public class Player {
             } else {
                 chip_count = 0;
                 last_move = Move.OUT;
+                set_state(new Out());
             }
         } else {
             chip_count += bet;
