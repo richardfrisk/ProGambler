@@ -1,6 +1,7 @@
 package io.github.OOprojektG10.controller;
 
 import io.github.OOprojektG10.model.GameModel;
+import io.github.OOprojektG10.model.Player;
 
 public class GameController implements GameObserver {
 
@@ -20,7 +21,6 @@ public class GameController implements GameObserver {
     }
 
     public void playerFolds() {
-
     }
 
     @Override      // DENNA SWITCH SATSEN SKA UPPDATERA GAMEVIEW SENARE ÄR TANKEN

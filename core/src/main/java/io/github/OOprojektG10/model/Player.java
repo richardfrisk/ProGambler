@@ -73,8 +73,6 @@ public class Player {
                 chip_count -= bet;
             } else {
                 chip_count = 0;
-                last_move = Move.OUT;
-                set_state(new Out());
             }
         } else {
             chip_count += bet;

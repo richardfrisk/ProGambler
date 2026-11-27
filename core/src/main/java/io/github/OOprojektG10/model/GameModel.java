@@ -9,32 +9,32 @@ public class GameModel {
     /* Innehåller pot, kortleken, lyssnar på controller efter knapptryck och botarnas drag
 funktioner: Deala korten, pull card from kortlek
 spellogik: dvs spelets gång, vem som vinner, när man går bust*/
-    public int pot;
-    public int contributions; //den mängd chips som läggs till i poten i slutet av rundan.
-    public int currentBet;
+    private int pot;
+    private int contributions; //den mängd chips som läggs till i poten i slutet av rundan.
+    private int currentBet;
     private int blindCoinPos;
     private int bigBlind;
     private int currentPlayer;
     private final int dealerPos;
 
-    protected ArrayList<Card> river = new ArrayList<Card>();
+    private ArrayList<Card> river = new ArrayList<Card>();
     private Deck deck;
 
-    protected ArrayList<Player> players; //= new ArrayList<Player>();
+    private ArrayList<Player> players; //= new ArrayList<Player>();
 
     public GameModel(int Starting_Chips, Deck deck, ArrayList<Player> players, int initialBlind){
         setChipsOnTableToZero();
         blindCoinPos = new Random().nextInt(players.size());
         this.bigBlind = initialBlind;
-        currentPlayer = (blindCoinPos + 1) % players.size();
-        dealerPos = new Random().nextInt(players.size());
+        currentPlayer = (getBlindCoinPos() + 1) % players.size();
+        dealerPos = getBlindCoinPos() - 2;
 
         this.deck = deck;
         this.players = players;
     }
 
     public ArrayList<Card> getRiver() {
-        return (ArrayList<Card>) this.river.clone();
+        return this.river;
     }
 
     public int activePlayersCount(ArrayList<Player> players){
@@ -197,7 +197,7 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void dealCards(){
-        for (Player player : this.players){
+        for (Player player : this.getPlayers()){
             if (!player.get_stateString().equals("OUT")){
                 Card c1 = this.deck.drawCard();
                 Card c2 = this.deck.drawCard();
@@ -227,13 +227,13 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void payBlinds() {
-        int smallBlindCoin = (blindCoinPos -1);
+        int smallBlindCoin = (getBlindCoinPos() -1);
         if (smallBlindCoin < 0){
-            smallBlindCoin = players.size() - 1;
+            smallBlindCoin = getPlayers().size() - 1;
         }
-        contributions += players.get(blindCoinPos).pay_chips(bigBlind);
-        contributions += players.get(smallBlindCoin).pay_chips(bigBlind/2);
-        currentBet = bigBlind;
+        contributions = getContributions() + getPlayers().get(getBlindCoinPos()).pay_chips(getBigBlind());
+        contributions = getContributions() + getPlayers().get(smallBlindCoin).pay_chips(getBigBlind() /2);
+        currentBet = getBigBlind();
     }
 
     private void NextRound(){
@@ -253,12 +253,12 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void moveBlindCoin() {
-        blindCoinPos++;
-        blindCoinPos = blindCoinPos % players.size();
+        blindCoinPos = getBlindCoinPos() + 1;
+        blindCoinPos = getBlindCoinPos() % getPlayers().size();
     }
 
     private void increaseBlind(int chips){
-        bigBlind += chips;
+        bigBlind = getBigBlind() + chips;
     }
 
     private void PlayRound(){
@@ -268,22 +268,22 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
             playedPlayersToUnplayed();
         } */
 
-        if (activePlayersCount(this.players) == 1) {
-            pot += contributions;
-            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
-                !players.get(currentPlayer).get_stateString().equals("Played")){
+        if (activePlayersCount(this.getPlayers()) == 1) {
+            pot = getPot() + getContributions();
+            if (!getPlayers().get(getCurrentPlayer()).get_stateString().equals("Unplayed") &&
+                !getPlayers().get(getCurrentPlayer()).get_stateString().equals("Played")){
                 advancePlayer();
             }
-            players.get(currentPlayer).add_chips(pot);
+            getPlayers().get(getCurrentPlayer()).add_chips(getPot());
             EndGame();
             return;
         }
 
-        if (allPlayersHavePlayed(players)) {
-            pot += contributions;
-            currentPlayer = dealerPos;
-            if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
-                !players.get(currentPlayer).get_stateString().equals("Played")){
+        if (allPlayersHavePlayed(getPlayers())) {
+            pot = getPot() + getContributions();
+            currentPlayer = getDealerPos();
+            if (!getPlayers().get(getCurrentPlayer()).get_stateString().equals("Unplayed") &&
+                !getPlayers().get(getCurrentPlayer()).get_stateString().equals("Played")){
                 advancePlayer();
             }
             NextRound();
@@ -292,35 +292,35 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
         if  (river.isEmpty()) {
             payBlinds();
-            currentPlayer = blindCoinPos + 1;
-            currentPlayer %= players.size();
-            if (!getPlayerStateString(currentPlayer).equals("Unplayed")){
+            currentPlayer = getBlindCoinPos() + 1;
+            currentPlayer = getCurrentPlayer() % getPlayers().size();
+            if (!getPlayerStateString(getCurrentPlayer()).equals("Unplayed")){
                 advancePlayer();
             }
         } else {
-            for (Player player : players) {
+            for (Player player : getPlayers()) {
                 player.contribution = 0;
                 if (player.get_stateString().equals("Played")){
                     player.set_state(new Unplayed());
                 }
             }
-            currentPlayer = dealerPos;
+            currentPlayer = getDealerPos();
             currentBet = 0;
         }
 
     }
 
     public void act(Player caller, Move action, int raiseTo) {
-        if (!caller.get_stateString().equals("Unplayed") || !caller.equals(players.get(currentPlayer))){
+        if (!caller.get_stateString().equals("Unplayed") || !caller.equals(getPlayers().get(getCurrentPlayer()))){
             return;
         }
 
-        if (!getPlayerStateString(currentPlayer).equals("Unplayed")){
+        if (!getPlayerStateString(getCurrentPlayer()).equals("Unplayed")){
             advancePlayer();
         }
-        Player p = players.get(currentPlayer);
+        Player p = getPlayers().get(getCurrentPlayer());
 
-        int amountToCall = currentBet - p.contribution;
+        int amountToCall = getCurrentBet() - p.contribution;
 
         switch (action){
             case FOLD -> {
@@ -337,13 +337,13 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
             }
             case CALL -> {
                 if (amountToCall == 0){ act(caller, Move.CHECK, raiseTo); }
-                contributions += p.call(amountToCall);
+                contributions = getContributions() + p.call(amountToCall);
                 advancePlayer();
             }
             case RAISE -> {
-                if (raiseTo > currentBet) {
+                if (raiseTo > getCurrentBet()) {
                     playedPlayersToUnplayed();
-                    contributions += p.raiseBy(raiseTo - p.contribution);
+                    contributions = getContributions() + p.raiseBy(raiseTo - p.contribution);
                     currentBet = p.contribution;
                     advancePlayer();
                 } else {
@@ -366,15 +366,15 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
 
     private void EndGame(){
         //give pot the winning player. The only player left without the state "Fold" or "Busted" or with best hand
-        if (activePlayersCount(this.players) > 1) {
+        if (activePlayersCount(this.getPlayers()) > 1) {
             try {
-                getWinner(players).add_chips(pot);
+                getWinner(getPlayers()).add_chips(getPot());
             } catch (NullPointerException ignored) {}
         }
 
         setChipsOnTableToZero();
         river.clear();
-        for (Player player : this.players) {
+        for (Player player : this.getPlayers()) {
             if (player.get_stateString().equals("OUT")){ continue; }
             player.set_state(new Unplayed());
         }
@@ -382,26 +382,26 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private void playedPlayersToUnplayed(){
-        for (Player player : this.players) {
+        for (Player player : this.getPlayers()) {
             if (player.get_stateString().equals("Played")){ player.set_state(new Unplayed()); }
         }
     }
 
     private void advancePlayer() {
-        currentPlayer++;
-        currentPlayer = currentPlayer % players.size();
-        if (!players.get(currentPlayer).get_stateString().equals("Unplayed") &&
+        currentPlayer = getCurrentPlayer() + 1;
+        currentPlayer = getCurrentPlayer() % getPlayers().size();
+        if (!getPlayers().get(getCurrentPlayer()).get_stateString().equals("Unplayed") &&
             !noUnplayedPlayers()){
             advancePlayer();
         }
         if (noUnplayedPlayers() &&
-            !players.get(currentPlayer).get_stateString().equals("Played")){
+            !getPlayers().get(getCurrentPlayer()).get_stateString().equals("Played")){
             advancePlayer();
         }
     }
 
     private boolean noUnplayedPlayers() {
-        for (Player p : players) {
+        for (Player p : getPlayers()) {
             if (p.get_stateString().equals("Unplayed")){
                 return false;
             }
@@ -410,7 +410,39 @@ spellogik: dvs spelets gång, vem som vinner, när man går bust*/
     }
 
     private String getPlayerStateString(int i) {
-        return players.get(i).get_stateString();
+        return getPlayers().get(i).get_stateString();
+    }
+
+    public int getPot() {
+        return pot;
+    }
+
+    public int getContributions() {
+        return contributions;
+    }
+
+    public int getCurrentBet() {
+        return currentBet;
+    }
+
+    public int getBlindCoinPos() {
+        return blindCoinPos;
+    }
+
+    public int getBigBlind() {
+        return bigBlind;
+    }
+
+    public int getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public int getDealerPos() {
+        return dealerPos;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
     }
 
     /* -- DEPRECATED --
